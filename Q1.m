@@ -77,23 +77,68 @@ for i = 1:length(q)
     end
 end 
 
-pos
-%%
-% Loop through the other positions
-for i = 1:length(q)
-    
-    show(robot,q(:,i),"Parent",ax2,"PreservePlot",false);
-    
-    % Update the figure    
-    drawnow
-    
-end
+% %%
+% % Loop through the other positions
+% for i = 1:length(q)
+%     
+%     show(robot,q(:,i),"Parent",ax2,"PreservePlot",false);
+%     
+%     % Update the figure    
+%     drawnow
+%     
+% end
 
 
-%%
+np = 500
 
 % prm 
-random_q = [4 ;4 ;4 ;4 ;4 ;4; 4 ].*rand(7,100) - 2
+random_q = [4 ;4 ;4 ;4 ;4 ;4; 4 ].*rand(7,np) - 2;
+
+okPoint = false(np,1);
+
+for i=1:np
+    conf = random_q(:,i);
+    pos = getTransform(robot,conf,'EndEffector_Link');
+    if all(pos(1:3,4)>0) && pos(3,4)<c/2
+        [collision,~,~] = exampleHelperManipCheckCollisions(robot,collisionArray,worldCollisionArray,conf,false);
+  
+        okPoint(i) = ~collision;
+        % draw
+        if okPoint(i)==1
+            plot3(pos(1,4),pos(2,4),pos(3,4),'b.','MarkerSize',10);
+        else 
+            plot3(pos(1,4),pos(2,4),pos(3,4),'r.','MarkerSize',10);
+        end
+        
+    end
+end
+
+random_q = random_q(:,okPoint);
+
+random_q =[ random_q , startConfig , endConfig ]
+
+np = length(random_q(1,:))
+
+
+for i=1:np
+    conf = random_q(:,i);
+    pos = getTransform(robot,conf,'EndEffector_Link');
+        
+    idxs = knnsearch(random_q',conf','K',4);
+    for i2 = 1:length(idxs)
+        pos2 = getTransform(robot,random_q(:,idxs(i2)),'EndEffector_Link');
+        plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'k-' )
+        
+    end
+   
+end
+
+%%
+
+
+
+
+
 
 
 
