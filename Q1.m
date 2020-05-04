@@ -5,9 +5,9 @@ clc;
 
 
 
-a=1.2;
-b=1.2;
-c=1.2;
+a=1;
+b=1;
+c=1;
 
 %%
 % Create two platforms
@@ -61,21 +61,7 @@ isTrajectoryInCollision = any(isCollision)
 ax2 = exampleHelperVisualizeCollisionEnvironment(worldCollisionArray);
 
 % Visualize the robot in its home configuration
-show(robot,q(:,length(q)),"Parent",ax2);
-
-% Update the axis size
-
-% Loop through the other positions
-for i = 1:length(q)
-    
-    pos=getTransform(robot,q(:,i),'EndEffector_Link');
-    
-    if isCollision(i)==1
-        plot3(pos(1,4),pos(2,4),pos(3,4),'r.','MarkerSize',20);
-    else 
-        plot3(pos(1,4),pos(2,4),pos(3,4),'b.','MarkerSize',20);
-    end
-end 
+show(robot,startConfig,"Parent",ax2);
 
 % %%
 % % Loop through the other positions
@@ -89,10 +75,10 @@ end
 % end
 
 
-np = 500
+np = 400;
 
 % prm 
-random_q = [4 ;4 ;4 ;4 ;4 ;4; 4 ].*rand(7,np) - 2;
+random_q = [5 ;5 ;5 ;5 ;5 ;5; 5 ].*rand(7,np) - 2.5;
 
 okPoint = false(np,1);
 
@@ -105,34 +91,67 @@ for i=1:np
         okPoint(i) = ~collision;
         % draw
         if okPoint(i)==1
-            plot3(pos(1,4),pos(2,4),pos(3,4),'b.','MarkerSize',10);
+            plot3(pos(1,4),pos(2,4),pos(3,4),'b.','MarkerSize',15);
         else 
-            plot3(pos(1,4),pos(2,4),pos(3,4),'r.','MarkerSize',10);
+            plot3(pos(1,4),pos(2,4),pos(3,4),'r.','MarkerSize',15);
         end
-        
     end
 end
 
 random_q = random_q(:,okPoint);
-
-random_q =[ random_q , startConfig , endConfig ]
-
+random_q =[ random_q , startConfig , endConfig ];
 np = length(random_q(1,:))
 
+
+
+
+
+adjMat = ones(np)*inf;
 
 for i=1:np
     conf = random_q(:,i);
     pos = getTransform(robot,conf,'EndEffector_Link');
         
-    idxs = knnsearch(random_q',conf','K',4);
+    [idxs,mD] = knnsearch(random_q',conf','K',5);
     for i2 = 1:length(idxs)
-        pos2 = getTransform(robot,random_q(:,idxs(i2)),'EndEffector_Link');
-        plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'k-' )
-        
+        conf2 = random_q(:,idxs(i2));
+        pos2 = getTransform(robot,conf2,'EndEffector_Link');
+        q2 = trapveltraj([conf,conf2],8);
+        anyCollision = false;
+        for i3 = 1:length(q2)
+            pos3 = getTransform(robot,q2(:,i3),'EndEffector_Link');
+            [isCollision,~,~] = exampleHelperManipCheckCollisions(robot,collisionArray,worldCollisionArray,q2(:,i3),false);
+            anyCollision = anyCollision || isCollision;
+            anyCollision = anyCollision ||~(all(pos3(1:3,4)>0) && pos3(3,4)<c/2);
+            if anyCollision
+                break
+            end
+        end
+        if (anyCollision==1)
+            plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'r-' )
+        else
+            plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'b-' )
+            adjMat(i,idxs(i2))=mD(i2);
+            adjMat(idxs(i2),i)=adjMat(i,idxs(i2));
+        end
     end
-   
 end
 
+%%
+path_idxs = dijkstra(np, adjMat, np-1, np);
+
+q = trapveltraj(random_q(:,path_idxs),30);
+
+for i = 1:length(q)
+    
+    pos=getTransform(robot,q(:,i),'EndEffector_Link');
+    
+    if 1
+        plot3(pos(1,4),pos(2,4),pos(3,4),'r.','MarkerSize',10);
+    else 
+        plot3(pos(1,4),pos(2,4),pos(3,4),'b.','MarkerSize',10);
+    end
+end 
 %%
 
 
