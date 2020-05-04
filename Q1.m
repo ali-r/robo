@@ -14,7 +14,7 @@ c=1;
 platform1 = collisionBox(0.5,0.5,0.5);
 platform1.Pose = trvec2tform([a b/2 c]);
 
-platform2 = collisionCylinder(0.2,0.5);
+platform2 = collisionCylinder(0.2,0.4);
 platform2.Pose = trvec2tform([a/2 b/2 c/2]);
 
 % Store in a cell array for collision-checking
@@ -26,11 +26,10 @@ robot = loadrobot("kinovaGen3","DataFormat","column");
 % Generate an array of collision objects from the visuals of the associated tree
 collisionArray = exampleHelperManipCollisionsFromVisuals(robot);
 
-startPose = trvec2tform([a/2,0,c/2])*axang2tform([1 0 0 pi/2]);
+startPose = trvec2tform([a/2,0.0001,c/2-0.0001])*axang2tform([1 0 0 -pi/2]);
 endPose = trvec2tform([0.0001,0.85,0.0001])*axang2tform([1 0 0 -pi/2]);
 
-% Use a fixed random seed to ensure repeatable results
-rng(0);
+%rng(113);  % random seed
 ik = inverseKinematics("RigidBodyTree",robot);
 weights = ones(1,6);
 startConfig = ik("EndEffector_Link",startPose,weights,robot.homeConfiguration);
@@ -42,7 +41,7 @@ endConfig = ik("EndEffector_Link",endPose,weights,robot.homeConfiguration);
 % Plot the 
 ax2 = exampleHelperVisualizeCollisionEnvironment(worldCollisionArray);
 show(robot,startConfig,"Parent",ax2);
-show(robot,endConfig);
+%show(robot,endConfig);
 
 
 np = 300;
@@ -83,13 +82,13 @@ for i=1:np
     conf = random_q(:,i);
     pos = getTransform(robot,conf,'EndEffector_Link');
         
-    [idxs,mD] = knnsearch(random_q',conf','K',5);
+    [idxs,mD] = knnsearch(random_q',conf','K',6);
     for i2 = 1:length(idxs)
         conf2 = random_q(:,idxs(i2));
         pos2 = getTransform(robot,conf2,'EndEffector_Link');
         q2 = trapveltraj([conf,conf2],5);
         anyCollision = false;
-        for i3 = 1:length(q2(1,:))
+        for i3 = 2:length(q2(1,:))-1
             pos3 = getTransform(robot,q2(:,i3),'EndEffector_Link');
             [isCollision,~,~] = exampleHelperManipCheckCollisions(robot,collisionArray,worldCollisionArray,q2(:,i3),false);
             anyCollision = anyCollision || isCollision;
@@ -99,10 +98,10 @@ for i=1:np
             end
         end
         if (anyCollision==1)
-            plt=plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'r--','LineWidth',0.6 );
-            plt.Color(4) = 0.2;
+            plt=plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'r--','LineWidth',0.4 );
+            plt.Color(4) = 0.5;
         else
-            plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'b-' ,'LineWidth',1)
+            plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'b-' ,'LineWidth',0.7)
             adjMat(i,idxs(i2))=mD(i2);
             adjMat(idxs(i2),i)=adjMat(i,idxs(i2));
         end
