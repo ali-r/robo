@@ -3,6 +3,7 @@ close all;
 clc;
 
 
+addpath 'C:\Program Files\Polyspace\R2019b\examples\robotics\main'%gitignore
 
 
 a=1.2;
@@ -93,7 +94,8 @@ end
 %%
 
 % prm 
-random_q = [4 ;4 ;4 ;4 ;4 ;4; 4 ].*rand(7,100) - 2
+
+rand(100,7)
 
 
 
