@@ -22,8 +22,6 @@ platform2.Pose = trvec2tform([a/2 b/2 c/2]);
 worldCollisionArray = {platform1 platform2};
 
 robot = loadrobot("kinovaGen3","DataFormat","column");
-%ax = exampleHelperVisualizeCollisionEnvironment(worldCollisionArray);
-%show(robot,homeConfiguration(robot),"Parent",ax);
 
 
 % Generate an array of collision objects from the visuals of the associated tree
@@ -44,7 +42,6 @@ endConfig = ik("EndEffector_Link",endPose,weights,robot.homeConfiguration);
 
 % Plot the 
 ax2 = exampleHelperVisualizeCollisionEnvironment(worldCollisionArray);
-
 % Visualize the robot in its home configuration
 show(robot,startConfig,"Parent",ax2);
 
@@ -102,9 +99,10 @@ for i=1:np
             end
         end
         if (anyCollision==1)
-            plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'r-.' )
+            plt=plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'r-.' );
+            plt.Color(4) = 0.5;
         else
-            plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'b-' )
+            plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'b' )
             adjMat(i,idxs(i2))=mD(i2);
             adjMat(idxs(i2),i)=adjMat(i,idxs(i2));
         end
@@ -124,7 +122,9 @@ for i = 1:length(q)
 end 
 
 %%
-%animate
+% % animate
+%{
+ 
 for i = 1:length(q)
     
     show(robot,q(:,i),"Parent",ax2,"PreservePlot",false);
@@ -132,6 +132,7 @@ for i = 1:length(q)
     
 end
 
+%}
 
 
 

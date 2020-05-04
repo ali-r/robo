@@ -14,15 +14,13 @@ c=1;
 platform1 = collisionBox(0.5,0.5,0.5);
 platform1.Pose = trvec2tform([a b/2 c]);
 
-platform2 = collisionCylinder(0.2,0.6);
+platform2 = collisionCylinder(0.2,0.5);
 platform2.Pose = trvec2tform([a/2 b/2 c/2]);
 
 % Store in a cell array for collision-checking
 worldCollisionArray = {platform1 platform2};
 
 robot = loadrobot("kinovaGen3","DataFormat","column");
-%ax = exampleHelperVisualizeCollisionEnvironment(worldCollisionArray);
-%show(robot,homeConfiguration(robot),"Parent",ax);
 
 
 % Generate an array of collision objects from the visuals of the associated tree
@@ -45,8 +43,10 @@ endConfig = ik("EndEffector_Link",endPose,weights,robot.homeConfiguration);
 ax2 = exampleHelperVisualizeCollisionEnvironment(worldCollisionArray);
 % Visualize the robot in its home configuration
 show(robot,startConfig,"Parent",ax2);
+show(robot,endConfig);
 
-np = 350;
+
+np = 300;
 
 % prm 
 random_q = [5 ;5 ;5 ;5 ;5 ;5; 0 ].*rand(7,np) - 2.5;
@@ -103,7 +103,7 @@ for i=1:np
             plt=plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'r-.' );
             plt.Color(4) = 0.5;
         else
-            plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'b-' )
+            plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'b-' ,'MarkerSize',8)
             adjMat(i,idxs(i2))=mD(i2);
             adjMat(idxs(i2),i)=adjMat(i,idxs(i2));
         end
@@ -113,12 +113,12 @@ end
 %%
 path_idxs = dijkstra(np, adjMat, np-1, np);
 
-q = trapveltraj(random_q(:,path_idxs),150);
+q = trapveltraj(random_q(:,path_idxs),250);
 
 for i = 1:length(q)
     
     pos=getTransform(robot,q(:,i),'EndEffector_Link');
-    plot3(pos(1,4),pos(2,4),pos(3,4),'g.','MarkerSize',15);
+    plot3(pos(1,4),pos(2,4),pos(3,4),'g','MarkerSize',10);
 
 end 
 
