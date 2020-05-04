@@ -41,7 +41,6 @@ endConfig = ik("EndEffector_Link",endPose,weights,robot.homeConfiguration);
 
 % Plot the 
 ax2 = exampleHelperVisualizeCollisionEnvironment(worldCollisionArray);
-% Visualize the robot in its home configuration
 show(robot,startConfig,"Parent",ax2);
 show(robot,endConfig);
 
@@ -100,10 +99,10 @@ for i=1:np
             end
         end
         if (anyCollision==1)
-            plt=plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'r-.' );
-            plt.Color(4) = 0.5;
+            plt=plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'r--','LineWidth',0.6 );
+            %plt.Color(4) = 0.3;
         else
-            plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'b-' ,'MarkerSize',8)
+            plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'b-' ,'LineWidth',1)
             adjMat(i,idxs(i2))=mD(i2);
             adjMat(idxs(i2),i)=adjMat(i,idxs(i2));
         end
@@ -118,7 +117,7 @@ q = trapveltraj(random_q(:,path_idxs),250);
 for i = 1:length(q)
     
     pos=getTransform(robot,q(:,i),'EndEffector_Link');
-    plot3(pos(1,4),pos(2,4),pos(3,4),'g','MarkerSize',10);
+    plot3(pos(1,4),pos(2,4),pos(3,4),'g.','MarkerSize',10);
 
 end 
 
