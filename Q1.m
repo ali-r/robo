@@ -100,7 +100,7 @@ for i=1:np
         end
         if (anyCollision==1)
             plt=plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'r--','LineWidth',0.6 );
-            %plt.Color(4) = 0.3;
+            plt.Color(4) = 0.2;
         else
             plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'b-' ,'LineWidth',1)
             adjMat(i,idxs(i2))=mD(i2);
