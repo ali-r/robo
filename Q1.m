@@ -46,7 +46,7 @@ ax2 = exampleHelperVisualizeCollisionEnvironment(worldCollisionArray);
 % Visualize the robot in its home configuration
 show(robot,startConfig,"Parent",ax2);
 
-np = 300;
+np = 350;
 
 % prm 
 random_q = [5 ;5 ;5 ;5 ;5 ;5; 0 ].*rand(7,np) - 2.5;
@@ -101,7 +101,7 @@ for i=1:np
         end
         if (anyCollision==1)
             plt=plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'r-.' );
-            plt.Color(4) = 0.3;
+            plt.Color(4) = 0.5;
         else
             plot3( [pos(1,4) pos2(1,4)],[pos(2,4) pos2(2,4)],[pos(3,4) pos2(3,4)],'b-' )
             adjMat(i,idxs(i2))=mD(i2);
