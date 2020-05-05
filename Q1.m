@@ -5,7 +5,7 @@ close all;
 clc;
 
 
-
+global robot collisionArray worldCollisionArray checkA checkB checkC;
 
 a=1;
 b=1;
@@ -46,26 +46,59 @@ show(robot,startConfig,"Parent",ax2);
 
 %% RRT Algorithm
 
-n=1000;
-maxLen=0.2;
+checkA =a;
+checkB =b;
+checkC =c;
+
+n1=50;
+n2=15;
+maxLen=1;
 maxAng=2.5;
+pathSample=5;
 
 graph=[endConfig];
 % graph2=[endConfig];
 
 net=[1];
 % net2=[1];
+i=0;
 
-for i=1:n
-%     sample= 2*maxAng*ones(7,1).*rand(7,1)-maxAng;
-% 
-%     [idxs,mD] = knnsearch(sample',graph1','K',1);
-    [sample idx]=NewSample(graph,maxAng,maxLen);
-    if CollisionCheck(robot,sample,collisionArray,worldCollisionArray,a,b,c)
-        graph=[graph sample];
-        
+while size(net,1)<n1
+    i=i+1;
+    
+    [sample idx]=NewSample(graph,maxAng,maxLen,0);
+    if CollisionCheck(sample)
+        if PathCheck(sample,graph(:,idx),pathSample)
+            graph=[graph sample];
+            net=[net;idx];
+        end
     end
     
+end
+
+while size(net,1)<(n1+n2)
+    [sample idx]=NewSample(graph,1,maxLen*2,startConfig);
+    if CollisionCheck(sample)
+        if PathCheck(sample,graph(:,idx),pathSample)
+            graph=[graph sample];
+            net=[net;idx];
+        end
+    end
+    
+end
+
+network=[0];
+for i =2:size(net,1)
+    temp=zeros(i,i);
+    temp(1:i-1,1:i-1)=network;
+    network=temp;
+    
+    idx=net(i);
+    
+    dist=norm(graph(1:6,idx)-graph(1:6,i));
+    
+    network(idx,i)=dist;
+    network(i,idx)=dist;
 end
 
 %% PRM algorithm
