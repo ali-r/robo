@@ -1,3 +1,5 @@
+%% init the world
+
 clear all;
 close all;
 clc;
@@ -36,17 +38,21 @@ startConfig = ik("EndEffector_Link",startPose,weights,robot.homeConfiguration);
 endConfig = ik("EndEffector_Link",endPose,weights,robot.homeConfiguration);
 
 
-%%
+%% Show the world
 
-% Plot the 
 ax2 = exampleHelperVisualizeCollisionEnvironment(worldCollisionArray);
 show(robot,startConfig,"Parent",ax2);
 %show(robot,endConfig);
 
+%% RRT Algorithm
+
+
+
+
+%% PRM algorithm
 
 np = 300;
 
-% prm 
 random_q = [5 ;5 ;5 ;5 ;5 ;5; 0 ].*rand(7,np) - 2.5;
 endConfig(7) = -2.5 ; 
 startConfig(7) = -2.5 ; 
@@ -74,7 +80,7 @@ np = length(random_q(1,:))
 
 
 
-%%
+% Build graph
 
 adjMat = ones(np)*inf;
 
@@ -108,7 +114,9 @@ for i=1:np
     end
 end
 
-%%
+
+%% graph search
+
 path_idxs = dijkstra(np, adjMat, np-1, np);
 
 q = trapveltraj(random_q(:,path_idxs),250);
@@ -120,18 +128,15 @@ for i = 1:length(q)
 
 end 
 
-%%
-% % animate
-%{
- 
+
+%% animate the path
+
 for i = 1:length(q)
     
     show(robot,q(:,i),"Parent",ax2,"PreservePlot",false);
     drawnow
     
 end
-
-%}
 
 
 
