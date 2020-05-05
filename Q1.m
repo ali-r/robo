@@ -46,8 +46,27 @@ show(robot,startConfig,"Parent",ax2);
 
 %% RRT Algorithm
 
+n=1000;
+maxLen=0.2;
+maxAng=2.5;
 
+graph=[endConfig];
+% graph2=[endConfig];
 
+net=[1];
+% net2=[1];
+
+for i=1:n
+%     sample= 2*maxAng*ones(7,1).*rand(7,1)-maxAng;
+% 
+%     [idxs,mD] = knnsearch(sample',graph1','K',1);
+    [sample idx]=NewSample(graph,maxAng,maxLen);
+    if CollisionCheck(robot,sample,collisionArray,worldCollisionArray,a,b,c)
+        graph=[graph sample];
+        
+    end
+    
+end
 
 %% PRM algorithm
 
