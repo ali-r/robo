@@ -51,45 +51,65 @@ checkB =b;
 checkC =c;
 
 n1=50;
-n2=15;
+n2=20;
 maxLen=1;
 maxAng=2.5;
-pathSample=5;
+pathSample=8;
 
 graph=[endConfig];
 % graph2=[endConfig];
 
 net=[1];
 % net2=[1];
-i=0;
+i1=0;
 
+% random dots generate by starting from end point
 while size(net,1)<n1
-    i=i+1;
+    i1=i1+1;
     
     [sample idx]=NewSample(graph,maxAng,maxLen,0);
-    if CollisionCheck(sample)
+    if CollisionCheck(sample)==false
         if PathCheck(sample,graph(:,idx),pathSample)
             graph=[graph sample];
             net=[net;idx];
+            
+            pos1=getTransform(robot,sample,'EndEffector_Link');
+            pos2=getTransform(robot,graph(:,idx),'EndEffector_Link');
+            plot3(pos1(1,4),pos1(2,4),pos1(3,4),'g.','MarkerSize',10);
+            plot3( [pos1(1,4) pos2(1,4)],[pos1(2,4) pos2(2,4)],[pos1(3,4) pos2(3,4)],'b-' ,'LineWidth',0.7)
         end
     end
     
 end
 
+i2=0;
+% random dots around start config point
 while size(net,1)<(n1+n2)
-    [sample idx]=NewSample(graph,1,maxLen*2,startConfig);
+    i2=i2+1;
+    [sample idx]=NewSample(graph,1.5,maxLen,startConfig);
     if CollisionCheck(sample)
         if PathCheck(sample,graph(:,idx),pathSample)
             graph=[graph sample];
             net=[net;idx];
+            
+            pos1=getTransform(robot,sample,'EndEffector_Link');
+            pos2=getTransform(robot,graph(:,idx),'EndEffector_Link');
+            plot3(pos1(1,4),pos1(2,4),pos1(3,4),'r.','MarkerSize',10);
+            plot3( [pos1(1,4) pos2(1,4)],[pos1(2,4) pos2(2,4)],[pos1(3,4) pos2(3,4)],'r-' ,'LineWidth',0.7)
+
         end
     end
     
 end
 
-network=[0];
+[m,idx]=min(vecnorm(graph(1:6,:)-startConfig(1:6,1)));
+graph=[graph startConfig];
+net=[net;idx];
+
+% create adjacency matrix
+network=[inf];
 for i =2:size(net,1)
-    temp=zeros(i,i);
+    temp=inf*ones(i,i);
     temp(1:i-1,1:i-1)=network;
     network=temp;
     
@@ -100,6 +120,12 @@ for i =2:size(net,1)
     network(idx,i)=dist;
     network(i,idx)=dist;
 end
+
+adjMat=network;
+random_q=graph;
+np=size(network,1);
+startIdx=np;
+endIdx=1;
 
 %% PRM algorithm
 
@@ -166,12 +192,14 @@ for i=1:np
     end
 end
 
+startIdx=np-1;
+endIdx=np;
 
 %% graph search
 
-path_idxs = dijkstra(np, adjMat, np-1, np);
+path_idxs = dijkstra(np, adjMat, startIdx, endIdx);
 
-q = trapveltraj(random_q(:,path_idxs),250);
+q = trapveltraj(random_q(:,path_idxs),500);
 
 for i = 1:length(q)
     
